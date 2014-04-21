@@ -9,7 +9,7 @@ UNTIL = False # set a datetime to filter tweets until the day you indicate
 # TwitterTimeline params
 TIMELINE_COUNT = 200
 TIMELINE_KEYWORDS = ['word1','word2'] # but not expresions with OR
-UPDATE_GAP_SECONDS = 12*60*60 # users that have been processed in the GAP in seconds won't be processed now 
+UPDATE_GAP_SECONDS = 24*60*60 # users that have been processed in the GAP in seconds won't be processed now 
 
 # DATABASE
 DB_URL = 'localhost'
