@@ -24,12 +24,17 @@ db=connection.twitter
 tweets = db.tweets
 users = db.users
 
-def get_timeline(screen_name):
+def get_timeline(screen_name, since_id = False):
     try:
-        response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT)
+        response = None
+        if not since_id:
+            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT)
+        else:
+            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id)
         count = 0
         next_max_id = 0
         todo = True
+        new_since_id = 0
         while todo:
             todo = not (len(response) < TIMELINE_COUNT)
             for tweet in response:
@@ -40,21 +45,30 @@ def get_timeline(screen_name):
                 if (tweet_id < next_max_id) or (next_max_id == 0):
                     next_max_id = tweet_id
                     next_max_id -= 1 # decrement to avoid seeing this tweet again
-            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id)
-            
+                new_since_id = max(new_since_id,tweet_id)
+            if not since_id:
+                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id)
+            else:
+                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id)
             sleep = needs_sleep(response.rate_limit_remaining,response.rate_limit_reset)
             if sleep:
                 print 'Sleeping {0} seconds to avoid reaching rate limit.'.format(sleep)
                 time.sleep(sleep)
+        return new_since_id
     except Exception,e:
         print str(e)
 
 users_processed = 0
+users_updated = 0
 for user in users.find():
-    if user['processed'] == 'no':
-        get_timeline(user['screen_name'])
-        users.update({"screen_name": user['screen_name']}, {"$set": {"processed": datetime.datetime.now()}})
-        print "{0}'s timline has been processed".format(user['screen_name'])
-        users_processed += 1
-print 'Total users processed {0}'.format(users_processed)
+    if 'since_id' in user.keys():
+        users_updated += 1
+    since_id = get_timeline(user['screen_name'], since_id = 'since_id' in user.keys() and user['since_id'])
+    if since_id:
+        users.update({"screen_name": user['screen_name']}, {"$set": {"processed": datetime.datetime.utcnow(),"since_id":since_id}})
+    else:
+        users.update({"screen_name": user['screen_name']}, {"$set": {"processed": datetime.datetime.utcnow()}})
+    users_processed += 1
+    print "{0}'s timline has been processed".format(user['screen_name'])
+print 'Total users processed {0}. Users updated: {1}'.format(users_processed, users_updated)
 

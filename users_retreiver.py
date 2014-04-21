@@ -39,7 +39,7 @@ try:
             time.sleep(sleep)
         #tweets.insert(tweet)
         if users.find({"screen_name": tweet['user']['screen_name']}).count() == 0:
-            users.insert({"screen_name":tweet['user']['screen_name'],"processed":"no","created_at":datetime.datetime.now()})
+            users.insert({"screen_name":tweet['user']['screen_name'],"processed":"no","created_at":datetime.datetime.utcnow()})
             new_users += 1
         print tweet['user']['screen_name'],tweet['created_at'],count
         count += 1
