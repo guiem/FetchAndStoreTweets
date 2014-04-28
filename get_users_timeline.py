@@ -26,6 +26,9 @@ users = db.users
 
 def get_timeline(screen_name, since_id = False):
     try:
+        if screen_name in BLACK_LIST:
+            print "Skipping user {0} because it's black listed".format(screen_name)
+            return False
         response = None
         if not since_id:
             response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT)
@@ -51,6 +54,7 @@ def get_timeline(screen_name, since_id = False):
             else:
                 response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id)
             sleep = needs_sleep(response.rate_limit_remaining,response.rate_limit_reset)
+            print "screen_name: {0} | count: {1} | limit remaining: {2} | limit reset {3}".format(screen_name,count,response.rate_limit_remaining, response.rate_limit_reset)
             if sleep:
                 print 'Sleeping {0} seconds to avoid reaching rate limit.'.format(sleep)
                 time.sleep(sleep)
