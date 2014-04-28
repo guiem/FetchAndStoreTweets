@@ -41,10 +41,10 @@ def get_timeline(screen_name, since_id = False):
         while todo:
             todo = not (len(response) < TIMELINE_COUNT)
             for tweet in response:
+                tweet_id = tweet['id']
                 if contains_keywords(tweet['text'].encode('utf-8')) and tweets.find({"id":tweet['id'] }).count() == 0:
                     tweets.insert(tweet)
                 count += 1
-                tweet_id = tweet['id']
                 if (tweet_id < next_max_id) or (next_max_id == 0):
                     next_max_id = tweet_id
                     next_max_id -= 1 # decrement to avoid seeing this tweet again
@@ -52,7 +52,7 @@ def get_timeline(screen_name, since_id = False):
             if not since_id:
                 response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id)
             else:
-                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id)
+                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id, since_id = since_id)
             sleep = needs_sleep(response.rate_limit_remaining,response.rate_limit_reset)
             print "screen_name: {0} | count: {1} | limit remaining: {2} | limit reset {3}".format(screen_name,count,response.rate_limit_remaining, response.rate_limit_reset)
             if sleep:
@@ -65,12 +65,12 @@ def get_timeline(screen_name, since_id = False):
 users_processed = 0
 users_updated = 0
 for user in users.find():
-    if user['processed'] != 'no' and user['processed'] > (datetime.datetime.utcnow() -  datetime.timedelta(seconds=UPDATE_GAP_SECONDS)): # if user has been processed in the past GAP seconds we do nothing
+    if not UPDATE_ALL and (user['processed'] != 'no' and user['processed'] > (datetime.datetime.utcnow() -  datetime.timedelta(seconds=UPDATE_GAP_SECONDS))): # if user has been processed in the past GAP seconds we do nothing
         print 'Skipping user {0}'.format(user['screen_name'])
     else:
         if 'since_id' in user.keys():
             users_updated += 1
-        since_id = get_timeline(user['screen_name'], since_id = 'since_id' in user.keys() and user['since_id'])
+        since_id = get_timeline(user['screen_name'], since_id = not UPDATE_ALL and ('since_id' in user.keys() and user['since_id']))
         if since_id:
             users.update({"screen_name": user['screen_name']}, {"$set": {"processed": datetime.datetime.utcnow(),"since_id":since_id}})
         else:
