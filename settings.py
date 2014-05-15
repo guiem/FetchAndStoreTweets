@@ -15,6 +15,10 @@ UPDATE_ALL = False # set true if you want a shotcurt and update all since_id fro
 
 # DATABASE
 DB_URL = 'localhost'
+TWEETS_SUFIX = '_whatever' # if you collect tweets by term 'whatever' you'll find your tweets in the database stored in a collection called tweets_whatever
+USERS_SUFIX = '_whatever'
+WORDS_SUFIX = '_whatever'
+HASHTAGS_SUFIX = '_whatever'
 
 try:
     from settings_local import *

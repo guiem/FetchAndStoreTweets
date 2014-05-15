@@ -21,8 +21,8 @@ t = Twitter(
 # connect to mongo
 connection = pymongo.Connection("mongodb://{0}".format(DB_URL), safe=True)
 db=connection.twitter
-tweets = db.tweets
-users = db.users
+tweets = eval("db.tweets{0}".format(TWEETS_SUFIX))
+users = eval("db.users{0}".format(USERS_SUFIX))
 
 def get_timeline(screen_name, since_id = False):
     try:

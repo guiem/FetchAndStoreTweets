@@ -5,7 +5,7 @@ count = 0
 output.write("""{"nodes":[""")
 edge = False
 for line in f.readlines():
-    if 'node' in line:
+    if 'node' in line:# and 'result' not in line and not 'hashtag' in line:
         #<node id='1959028638'><data key='name'>expdem</data></node>
         id = line.split("<node id='")[1].split("'>")[0]
         dict[id] = count
@@ -15,7 +15,7 @@ for line in f.readlines():
         aux = """{"name":"%s","group":%s},""" %(name_aux,1)
         print aux
         output.write(aux)
-    elif 'edge' in line:
+    elif 'edge' in line:# and 'result' not in line and not 'hashtag' in line:
         if not edge:
             print dict
             output.write("""],"links":[""")

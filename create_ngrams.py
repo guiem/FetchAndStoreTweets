@@ -9,8 +9,9 @@ import nltk
 # connect to mongo
 connection = pymongo.Connection("mongodb://{0}".format(DB_URL), safe=True)
 db=connection.twitter
-tweets = db.tweets
-words = db.words
+tweets = eval("db.tweets{0}".format(TWEETS_SUFIX))
+db.drop_collection("words{0}".format(WORDS_SUFIX))
+words = eval("db.words{0}".format(WORDS_SUFIX))
 
 """tweets_processed = 0
 for tweet in tweets.find({ngrammed:None}):

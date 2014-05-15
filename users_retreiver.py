@@ -26,7 +26,7 @@ try:
     # connect to mongo
     connection = pymongo.Connection("mongodb://{0}".format(DB_URL), safe=True)
     db=connection.twitter
-    users = db.users
+    users = eval("db.users{0}".format(USERS_SUFIX))
     new_users = 0
     response = ts.searchTweetsIterable(tso)
     for tweet in response: # this is where the fun actually starts :)
