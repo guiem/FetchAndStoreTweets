@@ -43,6 +43,8 @@ def get_timeline(screen_name, since_id = False):
             for tweet in response:
                 tweet_id = tweet['id']
                 if contains_keywords(tweet['text'].encode('utf-8')) and tweets.find({"id":tweet['id'] }).count() == 0:
+                    dt = datetime.datetime.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')
+                    tweet['created_at_dt'] = dt
                     tweets.insert(tweet)
                 count += 1
                 if (tweet_id < next_max_id) or (next_max_id == 0):
