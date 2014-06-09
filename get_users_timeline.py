@@ -66,7 +66,10 @@ def get_timeline(screen_name, since_id = False):
 
 users_processed = 0
 users_updated = 0
-for user in users.find():
+users_to_process = users.find()
+total_users = users_to_process.count()
+count = 0
+for user in users_to_process:
     if not UPDATE_ALL and (user['processed'] != 'no' and user['processed'] > (datetime.datetime.utcnow() -  datetime.timedelta(seconds=UPDATE_GAP_SECONDS))): # if user has been processed in the past GAP seconds we do nothing
         print 'Skipping user {0}'.format(user['screen_name'])
     else:
@@ -79,5 +82,7 @@ for user in users.find():
             users.update({"screen_name": user['screen_name']}, {"$set": {"processed": datetime.datetime.utcnow()}})
         users_processed += 1
         print "{0}'s timline has been processed".format(user['screen_name'])
+    count += 1
+    print "{0}/{1} visited users".format(count,total_users)
 print 'Total users processed {0}. Users updated: {1}'.format(users_processed, users_updated)
 
