@@ -31,9 +31,9 @@ def get_timeline(screen_name, since_id = False):
             return False
         response = None
         if not since_id:
-            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT)
+            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,exclude_replies=EXCLUDE_REPLIES,include_rts=INCLUDE_RTS)
         else:
-            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id)
+            response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,since_id = since_id, exclude_replies=EXCLUDE_REPLIES,include_rts=INCLUDE_RTS)
         count = 0
         next_max_id = 0
         todo = True
@@ -42,19 +42,22 @@ def get_timeline(screen_name, since_id = False):
             todo = not (len(response) < TIMELINE_COUNT)
             for tweet in response:
                 tweet_id = tweet['id']
-                if contains_keywords(tweet['text'].encode('utf-8')) and tweets.find({"id":tweet['id'] }).count() == 0:
+                if (not TIMELINE_KEYWORDS or contains_keywords(tweet['text'].encode('utf-8'))) and tweets.find({"id":tweet['id'] }).count() == 0:
                     dt = datetime.datetime.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')
                     tweet['created_at_dt'] = dt
-                    tweets.insert(tweet)
+                    #import pdb
+                    #pdb.set_trace()
+                    if (START_DATE and END_DATE and dt >= START_DATE and dt <= END_DATE) or (not (START_DATE and END_DATE)):
+                        tweets.insert(tweet)
                 count += 1
                 if (tweet_id < next_max_id) or (next_max_id == 0):
                     next_max_id = tweet_id
                     next_max_id -= 1 # decrement to avoid seeing this tweet again
                 new_since_id = max(new_since_id,tweet_id)
             if not since_id:
-                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id)
+                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id, exclude_replies=EXCLUDE_REPLIES,include_rts=INCLUDE_RTS)
             else:
-                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id, since_id = since_id)
+                response = t.statuses.user_timeline(screen_name=screen_name,count=TIMELINE_COUNT,max_id = next_max_id, since_id = since_id, exclude_replies=EXCLUDE_REPLIES,include_rts=INCLUDE_RTS)
             sleep = needs_sleep(response.rate_limit_remaining,response.rate_limit_reset)
             print "screen_name: {0} | count: {1} | limit remaining: {2} | limit reset {3}".format(screen_name,count,response.rate_limit_remaining, response.rate_limit_reset)
             if sleep:
@@ -62,7 +65,8 @@ def get_timeline(screen_name, since_id = False):
                 time.sleep(sleep)
         return new_since_id
     except Exception,e:
-        print str(e)
+        import traceback
+        print str(e),traceback.format_exc()
 
 users_processed = 0
 users_updated = 0

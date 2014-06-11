@@ -1,3 +1,5 @@
+import datetime
+
 # TwitterSearch params
 CONSUMER_KEY = 'YOUR CONSUMER KEY'
 CONSUMER_SECRET = 'YOUR CONSUMER SECRET'
@@ -12,6 +14,9 @@ TIMELINE_KEYWORDS = ['word1','word2'] # but not expresions with OR
 UPDATE_GAP_SECONDS = 12*60*60 # users that have been processed in the GAP in seconds won't be processed now
 BLACK_LIST = []
 UPDATE_ALL = False # set true if you want a shotcurt and update all since_id from all time
+START_DATE = False 
+END_DATE = False
+EXCLUDE_REPLIES = True
 
 # DATABASE
 DB_URL = 'localhost'
@@ -19,6 +24,8 @@ TWEETS_SUFIX = '_whatever' # if you collect tweets by term 'whatever' you'll fin
 USERS_SUFIX = '_whatever'
 WORDS_SUFIX = '_whatever'
 HASHTAGS_SUFIX = '_whatever'
+
+USERS_FILE_PATH = 'None'
 
 try:
     from settings_local import *
