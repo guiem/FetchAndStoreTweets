@@ -50,7 +50,7 @@ def get_timeline(screen_name, since_id = False):
                     if (START_DATE and END_DATE and dt >= START_DATE and dt <= END_DATE) or (not (START_DATE and END_DATE)):
                         tweets.insert(tweet)
                     if dt < START_DATE:
-                        break
+                        todo = False
                 count += 1
                 if (tweet_id < next_max_id) or (next_max_id == 0):
                     next_max_id = tweet_id
