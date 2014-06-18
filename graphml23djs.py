@@ -1,4 +1,4 @@
-f = open('expdem_source.graphml','r')
+f = open('expdem20140615.graphml','r')
 output = open('output.json','w')
 dict = {}
 count = 0
